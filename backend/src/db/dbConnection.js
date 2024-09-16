@@ -2,11 +2,11 @@ import mongoose from "mongoose"
 import { DB_NAME } from "../constants.js"
 
 
-const db_uri = process.env.MONGODB_URL
+const DB_URI = process.env.MONGODB_URL
 
 const connection = async () => {
     try {
-        const connectionInstance = await mongoose.connect(`${db_uri}/${DB_NAME}`)
+        const connectionInstance = await mongoose.connect(`${DB_URI}/${DB_NAME}`)
         console.log('MongoDB connection established', connectionInstance.connection.host)
     }
     catch (err) {
