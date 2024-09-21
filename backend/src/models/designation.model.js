@@ -7,5 +7,4 @@ const designationSchema = new mongoose.Schema({
     },
 });
 
-
 export default mongoose.model('Designation', designationSchema);

@@ -1,11 +1,8 @@
-
 import employeeModel from "../models/employee.model.js";
 
-export default async function  nullReferenceDepartmentAttribute (req, res, next) {
+export default async function nullReferenceDepartmentAttribute(req, res, next) {
     try {
         const departmentId = req.params.deptId;
-
-
         const employeeData = await employeeModel.find({ department: departmentId });
 
         if (employeeData && employeeData.length > 0) {
