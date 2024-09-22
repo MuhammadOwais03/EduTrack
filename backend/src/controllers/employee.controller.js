@@ -3,21 +3,26 @@ import employeeModel from "../models/employee.model.js";
 
 export const getAllEmployee = async (req, res) => {
     try {
-        const employees = await employeeModel.find();
-        return res.status(201).send(employees)
+      // Find all employees and populate 'designation' and 'department'
+      const employees = await employeeModel.find()
+        .populate('designation')  // Populate designation data
+        .populate('department');   // Populate department data
+      
+      return res.status(201).send(employees);
     } catch (err) {
-        console.log("Error while getting the employee")
-        res.status(500).send(
-            { message: "Error while getting the employee" }
-        )
+      console.log("Error while getting the employees", err);
+      res.status(500).send({ message: "Error while getting the employees" });
     }
-}
+  };
+  
 
 export const getEmployee = async (req, res) => {
     const employeeId = req.params.empId;
     
     try {
-        const emp = await employeeModel.findOne({ _id: employeeId });
+        const emp = await employeeModel.findOne({ _id: employeeId })
+        .populate('designation')  // Populate designation data
+        .populate('department');  // Populate department data
         if (!emp) return res.status(201).send({ "message": "Employee not found!" })
         return res.status(201).send(emp)
     } catch (err) {
@@ -39,7 +44,8 @@ export const createEmployee = async (req, res) => {
 
     try {
         const emp = await employeeModel.create(employee);
-        return res.status(201).send(emp)
+        const populatedEmp = await employeeModel.findById(emp._id).populate('designation').populate('department');
+        return res.status(201).send(populatedEmp)
     } catch (err) {
         console.log("Error while creating employee", err)
         res.status(500).send(
@@ -76,9 +82,9 @@ export const updateEmployee = async (req, res) => {
     }
 
     try {
-        const emp = await employeeModel.findByIdAndUpdate(employeeId, updatedEmployee, { new: true });
+        const emp = await employeeModel.findByIdAndUpdate(employeeId, updatedEmployee, { new: true }).populate('designation').populate('department');
         if (!emp) return res.status(201).send({ "message": "Employee not found!" })
-        return res.status(201).send({ "message": "Euccessfully updated the employee" })
+        return res.status(201).send(emp)
     } catch (err) {
         console.log("Error while updated the employee")
         res.status(500).send(

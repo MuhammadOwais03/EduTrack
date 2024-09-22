@@ -5,6 +5,7 @@ import EmployeeForm from './app/(employee)/employeeForm'; // Ensure this compone
 import { Base } from './app/Base';
 import NotFoundScreen from './app/+not-found';
 import EmployeeTable from './app/(employee)/employeeTable';
+import { getEmployees, getDepartments, getDesignations } from './apis/utils.js';
 
 // Define the stack navigator
 const Stack = createStackNavigator();
@@ -30,10 +31,34 @@ export default function App() {
         department: '',
     });
 
+    const [employees, setEmployees] = useState([])
+    const [departments, setDepartments] = useState([])
+    const [designations, setDesignations] = useState([])
+    const [selectedEmpId, setSelectedEmpId] = useState(null)
 
     useEffect(()=>{
         console.log(formData.salary)
     }, [formData])
+
+    useEffect(() => {
+        const fetchData = async () => {
+          try {
+            const [employees, departments, designations] = await Promise.all([
+              getEmployees(),
+              getDepartments(),
+              getDesignations()
+            ]);
+            setEmployees(employees);
+            setDepartments(departments);
+            setDesignations(designations);
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          }
+        };
+      
+        fetchData();
+      }, []);
+      
 
     const [btnAction, setBtnAction] = useState(true)
 
@@ -49,10 +74,20 @@ export default function App() {
                                 setFormData={setFormData}
                                 btnAction={btnAction}
                                 setBtnAction={setBtnAction}
+                                departments={departments}
+                                designations={designations}
+                                selectedEmpId={selectedEmpId}
+                                setSelectedEmpId={setSelectedEmpId}
+                                setEmployees={setEmployees}
+                                employees={employees}
+
                             />
                             <EmployeeTable
                                 setFormData={setFormData}
                                 setBtnAction={setBtnAction}
+                                employees={employees}
+                                setEmployees={setEmployees}
+                                setSelectedEmpId={setSelectedEmpId}
                             />
                         </Base>
                     )}

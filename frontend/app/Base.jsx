@@ -8,7 +8,6 @@ export const Base = ({ children, navigation }) => {
         <View style={styles.container}>
             <Text style={styles.baseText}>Employee App</Text>
 
-
             <View style={styles.content}>
                 {children}
             </View>

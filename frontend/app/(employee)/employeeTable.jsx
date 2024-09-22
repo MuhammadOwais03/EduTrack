@@ -1,83 +1,82 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Button, Alert } from 'react-native';
+import { deleteEmployee } from '../../apis/utils.js';
 
-const DATA = [
-    { id: '1', name: 'John Doe', designation: 'Junior Developer', department: 'Engineering', salary: "12000" },
-    { id: '2', name: 'Jane Smith', designation: 'Senior Developer', department: 'Engineering', salary: "12000" },
-    { id: '3', name: 'Emily Johnson', designation: 'Manager', department: 'Marketing', salary: "12000" },
-    // Add more entries as needed
-];
 
-const EmployeeTable = ({ setFormData, setBtnAction }) => {
+const EmployeeCard = ({ setFormData, setBtnAction, employees, setEmployees, setSelectedEmpId }) => {
     const handleEmployeePress = (item) => {
-        console.log(item)
+        console.log('Employee Pressed:', item);
         setFormData({
             name: item.name,
-            designation: item.designation,
+            designation: item.designation ? item.designation._id : null,
             salary: item.salary,
-            department: item.department,
+            department: item.department ? item.department._id : null,
         });
+
+        setSelectedEmpId(item._id);
         setBtnAction(false);
     };
 
+    const handleDelete = async (emp) => {
+        let result = await deleteEmployee(emp._id);
+        if (result.error) {
+            Alert.alert('Error', result.error);
+            return;
+        }
+        Alert.alert('Success', 'Employee deleted successfully');
+        setEmployees(employees.filter((employee) => employee._id !== emp._id));
+    };
+
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.row} onPress={() => handleEmployeePress(item)}>
-            <Text style={styles.cell}>{item.name}</Text>
-            <Text style={styles.cell}>{item.designation}</Text>
-            <Text style={styles.cell}>{item.department}</Text>
-        </TouchableOpacity>
+        <View style={styles.card}>
+            <TouchableOpacity onPress={() => handleEmployeePress(item)}>
+                <Text style={styles.cardTitle}>{item.name}</Text>
+                <Text style={styles.cardText}>Designation: {item.designation ? item.designation.designationName : 'N/A'}</Text>
+                <Text style={styles.cardText}>Department: {item.department ? item.department.deptName : 'N/A'}</Text>
+                <Text style={styles.cardText}>Salary: {item.salary} Rs</Text>
+            </TouchableOpacity>
+            <Button title="Delete" onPress={() => handleDelete(item)} color="#ff6347" />
+        </View>
     );
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.headerText}>Name</Text>
-                <Text style={styles.headerText}>Designation</Text>
-                <Text style={styles.headerText}>Department</Text>
-            </View>
-            {DATA.length === 0 ? (
-                <Text style={styles.emptyMessage}>No employees found.</Text>
-            ) : (
-                <FlatList
-                    data={DATA}
-                    renderItem={renderItem}
-                    keyExtractor={item => item.id}
-                />
-            )}
+            <FlatList
+                data={employees}
+                renderItem={renderItem}
+                keyExtractor={item => item._id} // Use _id instead of id
+            />
         </View>
     );
 };
 
-// Define the styles using StyleSheet
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
-        backgroundColor: '#f5f5f5',
+        padding: 10,
+        marginTop: 10,
+        backgroundColor: '#f8f9fa',
     },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingVertical: 10,
-        borderBottomWidth: 1,
-        borderColor: '#ccc',
+    card: {
+        backgroundColor: '#ffffff',
+        borderRadius: 10,
+        padding: 15,
+        marginBottom: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 1.5,
+        elevation: 3,
     },
-    headerText: {
+    cardTitle: {
+        fontSize: 18,
         fontWeight: 'bold',
-        flex: 1,
-        textAlign: 'center',
+        marginBottom: 5,
     },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingVertical: 10,
-        borderBottomWidth: 1,
-        borderColor: '#ccc',
-    },
-    cell: {
-        flex: 1,
-        textAlign: 'center',
+    cardText: {
+        fontSize: 16,
+        marginBottom: 5,
     },
 });
 
-export default EmployeeTable;
+export default EmployeeCard;
